@@ -22,7 +22,6 @@
 #include <random>
 #include <fstream>
 #include <sstream>
-#include <iomanip>
 #include <chrono>
 
 using namespace std;
@@ -106,15 +105,15 @@ private:
 
     void collect(TrieNode* node, string& current, vector<pair<string,int>>& results) const {
         if (node->isEnd) results.emplace_back(current, node->userID);
-        for (auto& [ch, child] : node->children) {
-            current.push_back(ch);
-            collect(child, current, results);
+        for (auto& pair : node->children) {
+            current.push_back(pair.first);
+            collect(pair.second, current, results);
             current.pop_back();
         }
     }
 
     void destroy(TrieNode* n) {
-        for (auto& [_, child] : n->children) destroy(child);
+        for (auto& pair : n->children) destroy(pair.second);
         delete n;
     }
 
@@ -278,33 +277,6 @@ public:
         return mutual;
     }
 
-    void displayNetwork(const UserManager& uMgr) const {
-        cout << "  Network Overview:\n";
-        cout << "  Total Users: " << adj.size() << "\n";
-        
-        size_t totalEdges = 0;
-        size_t maxDegree = 0;
-        for (const auto& [node, friends] : adj) {
-            totalEdges += friends.size();
-            maxDegree = max(maxDegree, friends.size());
-        }
-        cout << "  Total Friendships: " << (totalEdges / 2) << "\n";
-        cout << "  Max Friends (Degree): " << maxDegree << "\n\n";
-
-        cout << clr::GREEN << "  Top 10 Nodes by Connections:\n" << clr::RESET;
-        
-        vector<pair<int, size_t>> degrees;
-        for (const auto& [node, friends] : adj) {
-            degrees.push_back({node, friends.size()});
-        }
-        sort(degrees.begin(), degrees.end(), [](auto& a, auto& b){ return a.second > b.second; });
-
-        for (size_t i = 0; i < min((size_t)10, degrees.size()); i++) {
-            int node = degrees[i].first;
-            User u; uMgr.findUser(node, u);
-            cout << "  @" << u.username << " (" << node << ") -> " << degrees[i].second << " friends\n";
-        }
-    }
 
     // BFS: Fastest Viral Spread Path
     void findViralSpreadPath(int src, int dst, const UserManager& uMgr) const {
@@ -356,10 +328,10 @@ public:
         unordered_set<int> visited;
         vector<vector<int>> allCommunities;
         
-        for (const auto& [node, _] : adj) {
-            if (!visited.count(node)) {
+        for (const auto& pair : adj) {
+            if (!visited.count(pair.first)) {
                 vector<int> cluster;
-                dfsUtil(node, visited, cluster);
+                dfsUtil(pair.first, visited, cluster);
                 allCommunities.push_back(cluster);
             }
         }
@@ -446,7 +418,7 @@ private:
 public:
     void displayRankings(const UserManager& uMgr) {
         vector<User> usersList;
-        for (auto& [id, u] : uMgr.getAllUsers()) usersList.push_back(u);
+        for (auto& pair : uMgr.getAllUsers()) usersList.push_back(pair.second);
         if (usersList.empty()) return;
 
         // Perform Comparisons
@@ -581,7 +553,7 @@ private:
 
         // Generate random realistic graph interconnections
         vector<int> userIDs;
-        for (auto& [id, u] : users.getAllUsers()) userIDs.push_back(id);
+        for (auto& pair : users.getAllUsers()) userIDs.push_back(pair.first);
 
         if (userIDs.size() > 1) {
             mt19937 rng(42); // fixed seed for reproducible graph
@@ -612,12 +584,12 @@ public:
             cout << "\n" << clr::BOLD << clr::CYAN << "  BUZZLINK SOCIAL PLATFORM DASHBOARD\n" << clr::RESET;
             printSeparator();
             cout << "  1. Add User                      9. Add Friendship\n"
-                 << "  2. Search User by Prefix        10. Show Mutual Friends\n"
-                 << "  3. Change Privacy Setting       11. Find Viral Spread Path (BFS)\n"
-                 << "  4. Undo Privacy Change          12. Detect Communities (DFS)\n"
+                 << "  2. Search User by Prefix        10. Find Mutual Friends\n"
+                 << "  3. Change Privacy Setting       11. Detect Communities\n"
+                 << "  4. Undo Privacy Change          12. Find Shortest Path Between Users\n"
                  << "  5. Send Friend Request          13. Friend Recommendations\n"
-                 << "  6. Process Friend Request       14. Display Network\n"
-                 << "  7. Lookup User by ID            15. Exit\n"
+                 << "  6. Process Friend Request       14. Exit\n"
+                 << "  7. Find User by ID\n"
                  << "  8. Display Influencer Rankings\n";
             printSeparator();
             cout << "  Select option > ";
@@ -706,7 +678,7 @@ public:
                     break;
                 }
                 case 7: {
-                    printHeader("7. Lookup User by ID (Hash Map)");
+                    printHeader("7. Find User by ID");
                     cout << "  UserID: "; int id; cin >> id;
                     User u;
                     if(users.findUser(id, u)) u.print();
@@ -714,7 +686,7 @@ public:
                     break;
                 }
                 case 8: {
-                    printHeader("8. Display Influencer Rankings (Sorting)");
+                    printHeader("8. Display Influencer Rankings");
                     ranking.displayRankings(users);
                     break;
                 }
@@ -729,7 +701,7 @@ public:
                     break;
                 }
                 case 10: {
-                    printHeader("10. Show Mutual Friends");
+                    printHeader("10. Find Mutual Friends");
                     cout << "  User A: "; int a; cin >> a;
                     cout << "  User B: "; int b; cin >> b;
                     auto mut = graph.getMutualFriends(a, b);
@@ -743,29 +715,24 @@ public:
                     break;
                 }
                 case 11: {
-                    printHeader("11. Find Viral Spread Path (BFS)");
+                    printHeader("11. Detect Communities");
+                    graph.detectCommunities(users);
+                    break;
+                }
+                case 12: {
+                    printHeader("12. Find Shortest Path Between Users");
                     cout << "  Source ID: "; int s; cin >> s;
                     cout << "  Dest ID: "; int d; cin >> d;
                     graph.findViralSpreadPath(s, d, users);
                     break;
                 }
-                case 12: {
-                    printHeader("12. Detect Communities (DFS)");
-                    graph.detectCommunities(users);
-                    break;
-                }
                 case 13: {
-                    printHeader("13. Friend Recommendations (Greedy)");
+                    printHeader("13. Friend Recommendations");
                     cout << "  UserID: "; int id; cin >> id;
                     recommendations.suggestFriends(id, graph, users);
                     break;
                 }
                 case 14: {
-                    printHeader("14. Display Network Graph");
-                    graph.displayNetwork(users);
-                    break;
-                }
-                case 15: {
                     running = false; cout << clr::CYAN << "  Exiting BuzzLink...\n" << clr::RESET;
                     break;
                 }

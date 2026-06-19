@@ -1,0 +1,15 @@
+# Compiled binary
+buzzlink
+*.o
+*.out
+*.exe
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# macOS
+.DS_Store

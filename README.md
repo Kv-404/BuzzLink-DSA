@@ -1,417 +1,724 @@
-# 🐝 BuzzLink — A Social Media Backend Built with C++
+# 🐝 BuzzLink — Social Media Backend Simulation in C++
 
-> **What is this?** BuzzLink is a working social media engine (like the backend of Twitter or Instagram) built entirely in C++. It manages 1,000 users, their friendships, privacy settings, friend requests, and even figures out who's the most popular — all using smart computer science techniques called **Data Structures & Algorithms (DSA)**.
+> A fully object-oriented, menu-driven social networking backend built in C++ that demonstrates the **practical application of 8 core Data Structures and Algorithms** — Trie, Stack, Queue, Hash Map, Graph (BFS/DFS), Sorting Algorithms, and Greedy Optimization — in the context of a real-world platform managing 1,000+ users.
 
 ---
 
 ## 📖 Table of Contents
 
-1. [What Does This Project Do?](#-what-does-this-project-do)
-2. [How to Run It](#-how-to-run-it)
-3. [Project Files](#-project-files)
-4. [The 9 DSA Concepts Explained (In Plain English)](#-the-9-dsa-concepts-explained-in-plain-english)
-5. [Menu Options Guide](#-menu-options-guide)
-6. [How the Data Flows](#-how-the-data-flows)
-7. [Sample Output](#-sample-output)
+- [Overview](#-overview)
+- [Features at a Glance](#-features-at-a-glance)
+- [Getting Started](#-getting-started)
+- [Project Structure](#-project-structure)
+- [System Architecture](#%EF%B8%8F-system-architecture)
+- [Class Diagram](#-class-diagram)
+- [DSA Concepts — In-Depth Breakdown](#-dsa-concepts--in-depth-breakdown)
+  - [1. Trie — User Directory](#1-trie--user-directory)
+  - [2. Stack — Privacy History](#2-stack--privacy-history)
+  - [3. Queue — Friend Requests](#3-queue--friend-requests)
+  - [4. Hash Map — User Lookup](#4-hash-map--user-lookup)
+  - [5. Sorting Algorithms — Influencer Rankings](#5-sorting-algorithms--influencer-rankings)
+  - [6. Graph (Adjacency List) — Friend Network](#6-graph-adjacency-list--friend-network)
+  - [7. BFS — Shortest Path / Viral Spread](#7-bfs--shortest-path--viral-spread)
+  - [8. DFS — Community Detection](#8-dfs--community-detection)
+  - [9. Greedy Algorithm — Friend Recommendations](#9-greedy-algorithm--friend-recommendations)
+- [Time & Space Complexity Summary](#-time--space-complexity-summary)
+- [Menu Options Guide](#-menu-options-guide)
+- [Sample Input / Output](#-sample-input--output)
+- [License](#-license)
 
 ---
 
-## 🎯 What Does This Project Do?
+## 🌐 Overview
 
-Imagine you're building Instagram from scratch. You'd need to solve these everyday problems:
+**BuzzLink** simulates the backend of a micro-blogging social media platform. It models core social networking operations — user management, friendship graphs, privacy controls, content virality paths, influencer rankings, and intelligent friend recommendations — all powered by carefully chosen data structures and algorithms.
 
-| Real-World Problem | What BuzzLink Uses to Solve It |
+The system pre-loads **1,000 users** from a CSV dataset, generates a realistic random social graph (~3,000 friendship edges), and exposes all functionality through a color-coded interactive terminal dashboard.
+
+### Why BuzzLink?
+
+Social media platforms are one of the richest real-world applications of DSA. Every feature maps naturally to a classic data structure or algorithm:
+
+| Real-World Problem | DSA Solution |
 |---|---|
-| "I typed `ali` and want to see all usernames starting with that" | **Trie** (a special tree) |
-| "I accidentally set my profile to Private, undo it!" | **Stack** (like an undo button) |
-| "Process friend requests in the order they arrived" | **Queue** (like a line at a store) |
-| "Find a user instantly by their ID number" | **Hash Map** (like a dictionary) |
-| "Who are the top influencers right now?" | **Sorting Algorithms** (Quick Sort, Merge Sort) |
-| "Are Alice and Bob connected? Through whom?" | **Graph** (a web of connections) |
-| "How many hops for a tweet to go viral from A to B?" | **BFS** (Breadth-First Search) |
-| "What friend groups exist in the network?" | **DFS** (Depth-First Search) |
-| "Who should I recommend as a new friend?" | **Greedy Algorithm** |
+| "Search users as I type" | **Trie** (Prefix Tree) |
+| "Undo my privacy change" | **Stack** (LIFO) |
+| "Process requests in order" | **Queue** (FIFO) |
+| "Instant user profile lookup" | **Hash Map** |
+| "Rank top influencers" | **Sorting Algorithms** |
+| "Who are our mutual friends?" | **Graph** (Adjacency List) |
+| "How does a post go viral?" | **BFS** (Breadth-First Search) |
+| "Find isolated communities" | **DFS** (Depth-First Search) |
+| "People you may know" | **Greedy Algorithm** |
 
 ---
 
-## 🏃 How to Run It
+## ✨ Features at a Glance
 
-### What You Need
-- A Mac, Linux, or Windows computer
-- A C++ compiler that supports C++17 (like `g++`)
+- 🔍 **Prefix-based username autocomplete** using a Trie
+- 🔒 **Privacy setting management** with full undo history via Stack
+- 📬 **Fair friend request processing** through a FIFO Queue
+- ⚡ **O(1) user lookups** via Hash Map
+- 🏆 **Influencer leaderboard** with side-by-side Quick Sort / Merge Sort / STL Sort benchmarks
+- 🌐 **Social graph** with friendship management, mutual friends, and community detection
+- 🚀 **Viral spread path finder** using BFS shortest path
+- 🤝 **Smart friend recommendations** powered by Greedy optimization
+- 🎨 **ANSI color-coded terminal UI** for a polished interactive experience
+- 📊 **1,000+ user dataset** pre-loaded from CSV with auto-generated graph edges
 
-### Step 1: Compile (Turn the code into a program)
-Open your terminal, go to the project folder, and type:
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- A C++ compiler supporting **C++11** or later (g++, clang++, MSVC)
+- Terminal / Command Line
+
+### Compile
+
 ```bash
-g++ -std=c++17 -O2 -Wall -Wextra -o buzzlink buzzlink.cpp
+g++ -std=c++11 -O2 -o buzzlink buzzlink.cpp
 ```
 
-### Step 2: Run
+### Run
+
 ```bash
 ./buzzlink
 ```
 
-That's it! The program loads 1,000 users from `users.csv`, creates ~3,000 friendships between them, and shows you a menu with 15 options to play with.
+> **Note:** Ensure `users.csv` is in the same directory as the compiled binary. The program will load fallback data if the CSV is not found.
 
 ---
 
-## 📁 Project Files
+## 📁 Project Structure
 
-| File | What It Is |
-|---|---|
-| `buzzlink.cpp` | The entire C++ source code (~786 lines). Everything lives here. |
-| `users.csv` | A data file with 1,000 users. Each line has: `ID, username, followers, engagement_score, privacy_status` |
-| `README.md` | This file you're reading right now! |
+```
+BuzzLink/
+├── buzzlink.cpp        # Complete C++ source — all DSA logic in a single file
+├── users.csv           # Dataset of 1,000 users (id, username, followers, engagement, privacy)
+├── LICENSE             # MIT License
+└── README.md           # This file
+```
 
 ---
 
-## 🧠 The 9 DSA Concepts Explained (In Plain English)
+## 🏛️ System Architecture
 
-### 1. 🔤 Trie (Prefix Tree) — "The Autocomplete Engine"
+The application follows a **modular OOP architecture** where each DSA concept is encapsulated in its own manager class. The central `BuzzLinkApp` class orchestrates all components:
 
-**Real-life analogy:** Think of a phone's contact search. You type "al" and it instantly shows "Alice", "Alex", "Alyssa". It doesn't check every single contact one by one — it jumps directly to the "A → L" branch.
+```mermaid
+flowchart TD
+    A[(users.csv)] -->|Reads at startup| B(BuzzLinkApp::preloadData)
+    B -->|Populates| UM["UserManager<br/>(Hash Map)"]
+    B -->|Populates| TM["TrieManager<br/>(Trie)"]
+    B -->|Populates| GM["GraphManager<br/>(Adjacency List)"]
+    B -->|Initializes| PM["PrivacyManager<br/>(Stack)"]
 
-**How it works in BuzzLink:**
+    User[End User] <--> |CLI Input/Output| Dashboard("BuzzLink Dashboard<br/>Menu Options 1–14")
+
+    Dashboard <-->|Lookup / Updates| UM
+    Dashboard <-->|Prefix Search| TM
+    Dashboard <-->|Network & BFS/DFS| GM
+    Dashboard <-->|Undo/Redo History| PM
+    Dashboard <-->|Queue Requests| RM["RequestManager<br/>(Queue)"]
+    Dashboard <-->|Rank Users| RS["RankingSystem<br/>(Sorting Algos)"]
+    Dashboard <-->|Suggest Friends| RE["RecommendationEngine<br/>(Greedy Algo)"]
+
+    RS -->|Reads Users| UM
+    RE -->|Reads Network| GM
+    RE -->|Reads Users| UM
+    GM -->|Fetches Details| UM
+```
+
+### Data Flow
+
+1. **Startup** → `preloadData()` reads `users.csv`, populates the Hash Map, Trie, Graph, and Privacy Stack for all 1,000 users. Random friendship edges (~3,000) are generated with a fixed seed for reproducibility.
+2. **Runtime** → The interactive dashboard routes user menu choices to the appropriate manager class.
+3. **Each manager is independent** — they communicate only through well-defined public interfaces, making the system easy to extend.
+
+---
+
+## 📐 Class Diagram
+
+```mermaid
+classDiagram
+    class User {
+        +int userID
+        +string username
+        +int followers
+        +int engagementScore
+        +string privacyStatus
+        +User()
+        +User(int, string, int, int, string)
+        +print() const
+    }
+
+    class FriendRequest {
+        +int fromID
+        +int toID
+        +string message
+    }
+
+    class TrieNode {
+        +unordered_map~char, TrieNode*~ children
+        +bool isEnd
+        +int userID
+    }
+
+    class TrieManager {
+        -TrieNode* root
+        -collect(TrieNode*, string&, vector&) const
+        -destroy(TrieNode*)
+        +TrieManager()
+        +~TrieManager()
+        +insert(string, int)
+        +searchPrefix(string) vector
+    }
+
+    class PrivacyManager {
+        -unordered_map~int, stack~string~~ history
+        +changePrivacy(int, string)
+        +undoChange(int, string&) bool
+        +getCurrent(int) string
+    }
+
+    class RequestManager {
+        -queue~FriendRequest~ q
+        +sendRequest(FriendRequest)
+        +processNext(FriendRequest&) bool
+        +viewPending() const
+    }
+
+    class UserManager {
+        -unordered_map~int, User~ users
+        +addUser(User)
+        +findUser(int, User&) bool
+        +updateUser(int, User)
+        +getAllUsers() unordered_map&
+        +exists(int) bool
+    }
+
+    class GraphManager {
+        -unordered_map~int, unordered_set~int~~ adj
+        -dfsUtil(int, unordered_set&, vector&) const
+        +registerUser(int)
+        +addFriendship(int, int)
+        +removeFriendship(int, int)
+        +getFriends(int) unordered_set&
+        +areFriends(int, int) bool
+        +getMutualFriends(int, int) vector
+        +findViralSpreadPath(int, int, UserManager&)
+        +detectCommunities(UserManager&)
+    }
+
+    class RankingSystem {
+        -computeScore(User) double
+        -partition(vector&, size_t, size_t) size_t
+        -quickSortRecursive(vector&, size_t, size_t)
+        -merge(vector&, vector&, size_t, size_t, size_t)
+        -mergeSortRecursive(vector&, vector&, size_t, size_t)
+        +displayRankings(UserManager&)
+    }
+
+    class RecommendationEngine {
+        +suggestFriends(int, GraphManager&, UserManager&)
+    }
+
+    class BuzzLinkApp {
+        -TrieManager trie
+        -PrivacyManager privacy
+        -RequestManager requests
+        -UserManager users
+        -GraphManager graph
+        -RankingSystem ranking
+        -RecommendationEngine recommendations
+        -preloadData()
+        +BuzzLinkApp()
+        +run()
+    }
+
+    TrieManager *-- TrieNode
+    BuzzLinkApp *-- TrieManager
+    BuzzLinkApp *-- PrivacyManager
+    BuzzLinkApp *-- RequestManager
+    BuzzLinkApp *-- UserManager
+    BuzzLinkApp *-- GraphManager
+    BuzzLinkApp *-- RankingSystem
+    BuzzLinkApp *-- RecommendationEngine
+    UserManager o-- User
+    RequestManager o-- FriendRequest
+```
+
+---
+
+## 🧠 DSA Concepts — In-Depth Breakdown
+
+### 1. Trie — User Directory
+
+**Class:** `TrieManager` • **Menu Option:** 2 (Search User by Prefix)
+
+#### What is a Trie?
+
+A **Trie** (pronounced "try"), also called a **Prefix Tree**, is a tree-like data structure where each node represents a single character of a string. Strings that share common prefixes share the same path from the root, making prefix-based lookups extremely efficient.
+
+#### How It Works in BuzzLink
+
 ```
 Root
 ├── a
 │   ├── l
-│   │   ├── i
-│   │   │   ├── c
-│   │   │   │   └── e_j ✓ (User ID: 101)
-│   │   │   └── ...
-│   │   └── e
-│   │       └── x_m ✓ (User ID: 205)
+│   │   ├── i → c → e   ✓ "alice" (userID: 101)
+│   │   └── e → x       ✓ "alex"  (userID: 205)
+│   └── n → n → a       ✓ "anna"  (userID: 310)
 ├── b
-│   └── o
-│       └── b_m ✓ (User ID: 102)
+│   └── o → b           ✓ "bob"   (userID: 102)
+...
 ```
 
-When you search for prefix `"al"`, the Trie walks down `Root → a → l` and then collects everything below that point. It **never** looks at users starting with `b`, `c`, `d`, etc.
+When a user types the prefix `"al"`, the Trie:
+1. Traverses `root → 'a' → 'l'` in **O(L)** time (L = prefix length).
+2. Collects all descendants from that node using DFS, returning `["alice", "alex"]`.
 
-**Why it's fast:** If the prefix is 3 characters long, it takes exactly 3 steps — whether you have 100 users or 10 million users. That's called **O(L)** time, where L = length of what you typed.
+#### Why Not Use a Hash Map or Array?
 
-**Menu Option:** `2. Search User by Prefix`
+| Approach | Prefix Search Time | Problem |
+|---|---|---|
+| **Array scan** | O(N × L) | Must check every username |
+| **Hash Map** | O(N) | Only supports exact-match; no prefix search |
+| **Trie** | **O(L + K)** | L = prefix length, K = matches. Independent of N |
+
+#### Key Code
+
+```cpp
+void insert(const string& username, int userID) {
+    TrieNode* cur = root;
+    for (char c : username) {
+        if (!cur->children.count(c))
+            cur->children[c] = new TrieNode();
+        cur = cur->children[c];
+    }
+    cur->isEnd = true;
+    cur->userID = userID;
+}
+```
 
 ---
 
-### 2. 📚 Stack — "The Undo Button"
+### 2. Stack — Privacy History
 
-**Real-life analogy:** A stack of plates. You always add to the top and remove from the top. The last plate you put down is the first one you pick up. This is called **LIFO** (Last In, First Out).
+**Class:** `PrivacyManager` • **Menu Options:** 3 (Change), 4 (Undo)
 
-**How it works in BuzzLink:**
+#### What is a Stack?
 
-Say a user changes their privacy settings over time:
+A **Stack** is a linear data structure that follows the **Last-In, First-Out (LIFO)** principle. The last element pushed onto the stack is the first one to be popped off — just like a stack of plates.
+
+#### How It Works in BuzzLink
+
+Each user has their own stack of privacy states. Every time a privacy setting changes, the new state is pushed. Undo simply pops the current state to reveal the previous one:
+
 ```
-Action 1: Set to PUBLIC    → Stack: [PUBLIC]
-Action 2: Set to PRIVATE   → Stack: [PUBLIC, PRIVATE]
-Action 3: Set to PUBLIC    → Stack: [PUBLIC, PRIVATE, PUBLIC]
+User 101's Privacy Stack:
 
-Now they hit "Undo":
-Pop! → Removes PUBLIC, current setting reverts to PRIVATE
-Pop! → Removes PRIVATE, current setting reverts to PUBLIC
+  push("PUBLIC")  →  | PUBLIC  |     (initial state)
+  push("PRIVATE") →  | PRIVATE |     (user changed to private)
+                      | PUBLIC  |
+  pop()            →  | PUBLIC  |     (undo! reverted to public)
 ```
 
-Each user gets their own stack. You can undo as many times as there are changes in history.
+#### Why a Stack?
 
-**Why it's fast:** Pushing and popping from the top of a stack takes exactly 1 step — **O(1)** time. No searching needed.
-
-**Menu Options:** `3. Change Privacy Setting` and `4. Undo Privacy Change`
+Undo operations are inherently **LIFO** — you always want to revert to the *most recent* previous state. A stack models this perfectly with **O(1)** push and pop operations. Using an array or list would require tracking an index pointer manually.
 
 ---
 
-### 3. 🧑‍🤝‍🧑 Queue — "The Waiting Line"
+### 3. Queue — Friend Requests
 
-**Real-life analogy:** A queue at a coffee shop. The first person who arrives gets served first. This is called **FIFO** (First In, First Out).
+**Class:** `RequestManager` • **Menu Options:** 5 (Send), 6 (Process)
 
-**How it works in BuzzLink:**
+#### What is a Queue?
+
+A **Queue** is a linear data structure that follows the **First-In, First-Out (FIFO)** principle. Elements are added at the back (enqueue) and removed from the front (dequeue) — just like a line at a ticket counter.
+
+#### How It Works in BuzzLink
 
 ```
-Friend request from Frank → Queue: [Frank]
-Friend request from Hank  → Queue: [Frank, Hank]
-Friend request from Grace → Queue: [Frank, Hank, Grace]
-
-Process next request:
-Dequeue! → Frank gets processed first (he arrived first)
-Queue is now: [Hank, Grace]
+Send request (Alice → Bob)    →  Queue: [ Alice→Bob ]
+Send request (Charlie → Eve)  →  Queue: [ Alice→Bob, Charlie→Eve ]
+Process next request           →  Processes Alice→Bob first (FIFO fairness)
+                                  Queue: [ Charlie→Eve ]
 ```
 
-This guarantees fairness — no one can skip the line.
+#### Why a Queue?
 
-**Why it's fast:** Adding to the back and removing from the front both take **O(1)** time.
-
-**Menu Options:** `5. Send Friend Request` and `6. Process Friend Request`
+Friend requests must be handled **fairly** — the first request sent should be the first one processed. A Queue naturally enforces this chronological ordering with **O(1)** enqueue and dequeue operations.
 
 ---
 
-### 4. 🗂️ Hash Map — "The Instant Lookup Dictionary"
+### 4. Hash Map — User Lookup
 
-**Real-life analogy:** Imagine a library where instead of searching shelf by shelf, every book has a magic number that tells you the exact shelf and position. You walk straight to it.
+**Class:** `UserManager` • **Menu Options:** 1 (Add User), 7 (Find User by ID)
 
-**How it works in BuzzLink:**
+#### What is a Hash Map?
+
+A **Hash Map** (implemented as `std::unordered_map` in C++) is a key-value store that uses a **hash function** to compute an index into an array of buckets. This allows for near-instant lookups by key.
+
+#### How It Works in BuzzLink
 
 ```
-Hash Map:
-  Key: 101  →  Value: { username: "alice_j", followers: 52400, ... }
-  Key: 102  →  Value: { username: "bob_m", followers: 31200, ... }
-  Key: 103  →  Value: { username: "charlie_p", followers: 98700, ... }
-  ...
+Hash Function: hash(userID) → bucket index
+
+  users[101] → { id:101, name:"alice", followers:5000, ... }    O(1) lookup
+  users[102] → { id:102, name:"bob",   followers:3200, ... }    O(1) lookup
+  users[205] → { id:205, name:"alex",  followers:8100, ... }    O(1) lookup
 ```
 
-When you ask "Give me user #547", the hash map doesn't search through 1,000 users. It computes a hash of `547`, jumps to the right bucket, and hands you the data.
+The `UserManager` stores all 1,000 user profiles in an `unordered_map<int, User>`. Any operation — add, find, update, check existence — runs in **O(1) average time**.
 
-**Why it's fast:** Average lookup time is **O(1)** — constant time regardless of how many users exist.
+#### Why Not a Sorted Array or BST?
 
-**Menu Option:** `7. Lookup User by ID`
+| Approach | Lookup Time | Insertion Time |
+|---|---|---|
+| **Sorted Array** | O(log N) binary search | O(N) shifting |
+| **BST** | O(log N) | O(log N) |
+| **Hash Map** | **O(1)** average | **O(1)** average |
+
+For a system that constantly looks up users by ID, the hash map's constant-time performance is unbeatable.
 
 ---
 
-### 5. 📊 Sorting Algorithms — "The Influencer Leaderboard"
+### 5. Sorting Algorithms — Influencer Rankings
 
-**The goal:** Rank 1,000 users by a score calculated as:
+**Class:** `RankingSystem` • **Menu Option:** 8 (Display Influencer Rankings)
+
+#### What Sorting Algorithms Are Used?
+
+BuzzLink implements **three sorting algorithms** and benchmarks them against each other:
+
+##### Quick Sort
+
+A **divide-and-conquer** algorithm that:
+1. Picks a **pivot** element (BuzzLink uses the middle element to avoid worst-case on sorted data).
+2. **Partitions** the array: elements greater than the pivot go left, smaller go right.
+3. **Recursively** sorts both halves.
+
 ```
-Score = (followers × 0.7) + (engagement × 0.3)
+[ 82, 45, 91, 23, 67 ]  →  pivot=91
+[ 91 | 82, 67, 45, 23 ]  →  sort sub-arrays
+[ 91, 82, 67, 45, 23 ]   →  sorted (descending)
 ```
 
-BuzzLink runs **three** different sorting algorithms on the same data and times each one in nanoseconds so you can compare them:
+- **Average:** O(N log N) • **Worst:** O(N²) • **Space:** O(log N)
 
-#### Quick Sort
-- **How:** Pick a middle element as the "pivot". Put everything bigger on the left, everything smaller on the right. Repeat for each half.
-- **Speed:** O(N log N) on average
-- **Fun fact:** It's called "quick" because it's usually the fastest in practice
+##### Merge Sort
 
-#### Merge Sort
-- **How:** Split the list in half, sort each half, then merge them back together like a zipper.
-- **Speed:** O(N log N) always (guaranteed, never gets slower)
-- **Fun fact:** It's "stable" — if two users have the same score, they stay in their original order
+A **stable divide-and-conquer** algorithm that:
+1. **Splits** the array in half.
+2. **Recursively** sorts each half.
+3. **Merges** the two sorted halves back together.
 
-#### STL Sort (std::sort)
-- **How:** C++'s built-in sort. Uses a hybrid algorithm called IntroSort (Quick Sort + Heap Sort + Insertion Sort).
-- **Speed:** O(N log N) — this is the professional benchmark
+```
+[ 82, 45, 91, 23 ]
+      /        \
+ [ 82, 45 ]  [ 91, 23 ]
+   /    \       /    \
+ [82]  [45]  [91]  [23]
+   \    /       \    /
+ [ 82, 45 ]  [ 91, 23 ]       ← merge step
+      \          /
+ [ 91, 82, 45, 23 ]           ← final merge
+```
 
-**Menu Option:** `8. Display Influencer Rankings`
+- **Guaranteed:** O(N log N) • **Space:** O(N)
+
+##### STL Sort (`std::sort`)
+
+C++'s built-in `std::sort` uses **IntroSort** — a hybrid of Quick Sort, Heap Sort, and Insertion Sort. It starts with Quick Sort, switches to Heap Sort if recursion depth exceeds a threshold, and uses Insertion Sort for small sub-arrays.
+
+- **Guaranteed:** O(N log N) • **Highly optimized** in practice
+
+#### Influence Score Formula
+
+```
+Score = followers × 0.7 + engagementScore × 0.3
+```
+
+The system sorts all users by this weighted score and displays the Top 10 leaderboard, along with nanosecond-precision timing for each algorithm.
 
 ---
 
-### 6. 🕸️ Graph (Adjacency List) — "The Friendship Web"
+### 6. Graph (Adjacency List) — Friend Network
 
-**Real-life analogy:** Think of users as dots and friendships as lines connecting them. That's a graph!
+**Class:** `GraphManager` • **Menu Options:** 9 (Add Friendship), 10 (Mutual Friends)
 
-**How it works in BuzzLink:**
+#### What is a Graph?
+
+A **Graph** consists of **vertices** (nodes) and **edges** (connections). In BuzzLink, users are vertices and friendships are undirected edges.
+
+#### Adjacency List Representation
+
+Instead of a dense V×V matrix, an **Adjacency List** stores only the actual connections:
 
 ```
-Alice (101) ——— Bob (102)
-  |               |
-  |               |
-Charlie (103) ——+
-  |
-Eve (105) ——— Grace (107)
-
-
-Stored as an Adjacency List:
-  101 → {102, 103}        (Alice knows Bob and Charlie)
-  102 → {101, 103}        (Bob knows Alice and Charlie)
-  103 → {101, 102, 105}   (Charlie knows Alice, Bob, and Eve)
-  105 → {103, 107}        (Eve knows Charlie and Grace)
-  107 → {105}             (Grace knows Eve)
+User 101: { 102, 205, 310 }     ← Alice is friends with Bob, Alex, Anna
+User 102: { 101, 310 }          ← Bob is friends with Alice, Anna
+User 205: { 101 }               ← Alex is friends with Alice
+User 310: { 101, 102 }          ← Anna is friends with Alice, Bob
 ```
 
-We use an **adjacency list** (a map of sets) instead of a giant table because most users are NOT friends with most other users. This saves massive amounts of memory.
+Implemented as `unordered_map<int, unordered_set<int>>`, this gives:
+- **O(1)** friendship insertion and lookup
+- **O(V + E)** space (not V²)
 
-**Menu Options:** `9. Add Friendship`, `10. Show Mutual Friends`, `14. Display Network`
+#### Why Adjacency List Over Adjacency Matrix?
+
+Social graphs are **extremely sparse**. With 1,000 users:
+- **Adjacency Matrix:** 1,000 × 1,000 = **1,000,000 cells** (99.7% zeroes)
+- **Adjacency List:** Only stores ~3,000 actual edges = **~6,000 entries**
+
+#### Mutual Friends Algorithm
+
+To find mutual friends between users A and B:
+1. Get the friends set of A and B.
+2. Iterate over the **smaller** set.
+3. Check if each friend exists in the **larger** set (O(1) hash set lookup).
+
+This runs in **O(min(D_A, D_B))** time where D is the degree (number of friends).
 
 ---
 
-### 7. 🌊 BFS (Breadth-First Search) — "The Viral Spread Tracker"
+### 7. BFS — Shortest Path / Viral Spread
 
-**Real-life analogy:** Drop a stone in a pond. The ripples spread outward ring by ring. BFS explores a graph the same way — first all neighbors, then all neighbors-of-neighbors, etc.
+**Class:** `GraphManager::findViralSpreadPath` • **Menu Option:** 12
 
-**How it works in BuzzLink:**
+#### What is BFS?
 
-Question: "How does a post travel from Alice (101) to Grace (107)?"
+**Breadth-First Search** explores a graph **level by level** — visiting all nodes at distance 1 first, then distance 2, then distance 3, and so on. This guarantees that the **first time** BFS reaches a node, it has found the **shortest path** to it.
+
+#### How It Works in BuzzLink
+
+BFS finds the shortest "viral spread path" between two users — the minimum number of hops a post would take to travel from user A to user B through the friendship network:
 
 ```
-Step 1: Start at Alice (101)
-        Check Alice's friends: Bob (102), Charlie (103)
+Source: Alice (101)  →  Destination: Grace (107)
 
-Step 2: Check Bob's friends: Alice (already visited), Charlie (already visited)
-        Check Charlie's friends: Alice (visited), Bob (visited), Eve (105) ← NEW!
+Level 0: { Alice }
+Level 1: { Bob, Alex, Anna }         ← Alice's direct friends
+Level 2: { Charlie, Eve, Diana }     ← friends of friends
+Level 3: { Grace }                   ← FOUND! 3 hops
 
-Step 3: Check Eve's friends: Charlie (visited), Grace (107) ← FOUND!
-
-Result: Alice → Charlie → Eve → Grace (3 hops)
+Path: @alice → @charlie → @eve → @grace
 ```
 
-BFS guarantees this is the **shortest** possible path. It will never find a 5-hop path when a 3-hop path exists.
+#### Algorithm Steps
 
-**Menu Option:** `11. Find Viral Spread Path`
+1. Start from the source node, push it into a queue.
+2. While the queue is not empty:
+   - Dequeue the front node.
+   - If it's the destination → reconstruct the path using the parent map.
+   - Otherwise, enqueue all unvisited neighbors and record their parent.
+3. If the queue empties without finding the destination → users are disconnected.
+
+**Time:** O(V + E) • **Space:** O(V)
 
 ---
 
-### 8. 🔍 DFS (Depth-First Search) — "The Community Finder"
+### 8. DFS — Community Detection
 
-**Real-life analogy:** Imagine exploring a maze. You walk down one path as far as possible, hit a dead end, backtrack, and try another path. That's DFS.
+**Class:** `GraphManager::detectCommunities` • **Menu Option:** 11
 
-**How it works in BuzzLink:**
+#### What is DFS?
 
-A "community" is a group of people who are all connected to each other (directly or through friends), but disconnected from everyone else.
+**Depth-First Search** explores a graph by going **as deep as possible** along each branch before backtracking. It uses recursion (or an explicit stack) to dive deep into the graph.
+
+#### How It Works in BuzzLink
+
+DFS is used to find **connected components** — isolated groups of users who are all reachable from each other but disconnected from the rest of the network:
 
 ```
-Community 1:        Community 2:       Community 3:
-Alice — Bob         Diana — Hank       Frank (alone)
-  \   /
-  Charlie
-    |
-   Eve — Grace
-   
-(5 people)          (2 people)         (1 person)
+Graph:
+  [A]—[B]—[C]    [D]—[E]    [F]
+
+DFS from A → visits A, B, C  →  Community 1: {A, B, C}
+DFS from D → visits D, E     →  Community 2: {D, E}
+DFS from F → visits F        →  Community 3: {F}
+
+Total Communities Detected: 3
 ```
 
-DFS starts at an unvisited user, dives deep through all their connections, and marks everyone it reaches as one community. Then it moves on to the next unvisited user and repeats.
+#### Algorithm Steps
 
-**Menu Option:** `12. Detect Communities`
+1. Maintain a global `visited` set.
+2. For each unvisited user in the graph:
+   - Start a new DFS traversal, collecting all reachable users into a `cluster`.
+   - Each cluster is one community.
+3. Sort communities by size and display the top 3 largest.
+
+**Time:** O(V + E) • **Space:** O(V)
 
 ---
 
-### 9. 🎯 Greedy Algorithm — "The Smart Friend Recommender"
+### 9. Greedy Algorithm — Friend Recommendations
 
-**Real-life analogy:** LinkedIn's "People You May Know." If you and a stranger share 5 mutual friends, you're more likely to know each other than someone you share 1 mutual friend with.
+**Class:** `RecommendationEngine` • **Menu Option:** 13
 
-**How it works in BuzzLink:**
+#### What is a Greedy Algorithm?
+
+A **Greedy Algorithm** makes the **locally optimal choice** at each step, hoping to find a global optimum. It doesn't explore all possibilities — it picks the best available option immediately.
+
+#### How It Works in BuzzLink
+
+The recommendation engine suggests new friends based on **maximum mutual connections**:
 
 ```
-You: Alice (101)
-Your friends: Bob (102), Charlie (103)
+User Alice's friends: { Bob, Charlie }
 
-Bob's friends: Alice (skip), Diana (104), Eve (105)
-Charlie's friends: Alice (skip), Eve (105), Frank (106)
+Bob's friends:    { Alice, Diana, Eve }
+Charlie's friends: { Alice, Eve, Frank }
 
-Mutual friend counts for people Alice doesn't know:
-  Eve:   2 mutual friends (Bob + Charlie both know her)  ← Best pick!
-  Diana: 1 mutual friend (Bob knows her)
-  Frank: 1 mutual friend (Charlie knows him)
+Candidates (not already Alice's friend):
+  Eve   → mutual friends with Alice: 2 (via Bob AND Charlie)  ← BEST
+  Diana → mutual friends with Alice: 1 (via Bob)
+  Frank → mutual friends with Alice: 1 (via Charlie)
 
-Recommendation: Eve (highest mutual count)
+Greedy picks: Eve (highest mutual count)
 ```
 
-It's called **greedy** because it always picks the candidate with the **highest** mutual friend count first, without looking ahead at future consequences.
+#### Algorithm Steps
 
-**Menu Option:** `13. Friend Recommendations`
+1. For each of the user's friends → iterate over **their** friends (friends-of-friends).
+2. Skip anyone who is already a direct friend or the user themselves.
+3. Count mutual connections for each candidate.
+4. Sort candidates by mutual count (descending) — **greedy choice**.
+5. Return the top 5 recommendations.
+
+#### Why Greedy?
+
+A more sophisticated approach might compute recommendation scores using machine learning or global graph analysis, but the greedy mutual-friend approach:
+- Produces **highly relevant** suggestions (people your friends know)
+- Runs in **O(D²)** time (D = average degree), which is very fast
+- Avoids computationally expensive global optimizations
+
+---
+
+## 📊 Time & Space Complexity Summary
+
+| # | Feature | DSA Used | Time Complexity | Space Complexity |
+|---|---|---|---|---|
+| 1 | User Directory | Trie | O(L) search | O(N × L) |
+| 2 | Privacy History | Stack | O(1) push/pop | O(H) per user |
+| 3 | Friend Requests | Queue | O(1) enqueue/dequeue | O(R) |
+| 4 | User Lookup | Hash Map | O(1) average | O(N) |
+| 5 | Influencer Rankings | Quick/Merge/STL Sort | O(N log N) | O(N) |
+| 6 | Friend Network | Graph (Adj. List) | O(1) add edge | O(V + E) |
+| 7 | Viral Spread Path | BFS | O(V + E) | O(V) |
+| 8 | Community Detection | DFS | O(V + E) | O(V) |
+| 9 | Friend Recommendations | Greedy | O(D²) | O(D²) |
+
+> **Key:** N = users, L = string length, H = history depth, R = pending requests, V = vertices, E = edges, D = average degree
 
 ---
 
 ## 🎮 Menu Options Guide
 
-| # | Option | What It Does | DSA Used |
-|---|---|---|---|
-| 1 | Add User | Create a new user profile | Hash Map |
-| 2 | Search User by Prefix | Type a few letters, find all matching usernames | Trie |
-| 3 | Change Privacy Setting | Switch between PUBLIC and PRIVATE | Stack |
-| 4 | Undo Privacy Change | Revert the last privacy change | Stack |
-| 5 | Send Friend Request | Queue a friend request | Queue |
-| 6 | Process Friend Request | Handle the oldest pending request | Queue |
-| 7 | Lookup User by ID | Find a user by their numeric ID | Hash Map |
-| 8 | Display Influencer Rankings | Sort & rank all users by score | Quick/Merge/STL Sort |
-| 9 | Add Friendship | Connect two users as friends | Graph |
-| 10 | Show Mutual Friends | Find shared connections between two users | Graph |
-| 11 | Find Viral Spread Path | Shortest path between two users | BFS |
-| 12 | Detect Communities | Find isolated friend groups | DFS |
-| 13 | Friend Recommendations | Suggest who to follow next | Greedy Algorithm |
-| 14 | Display Network | Show network stats and top connected users | Graph |
-| 15 | Exit | Close the program | — |
+```
+  BUZZLINK SOCIAL PLATFORM DASHBOARD
+----------------------------------------------------------------
+  1. Add User                      9. Add Friendship
+  2. Search User by Prefix        10. Find Mutual Friends
+  3. Change Privacy Setting       11. Detect Communities
+  4. Undo Privacy Change          12. Find Shortest Path Between Users
+  5. Send Friend Request          13. Friend Recommendations
+  6. Process Friend Request       14. Exit
+  7. Find User by ID
+  8. Display Influencer Rankings
+----------------------------------------------------------------
+```
+
+| Option | What It Does | DSA Demonstrated |
+|---|---|---|
+| 1 | Register a new user into the system | Hash Map insertion + Trie insertion |
+| 2 | Autocomplete usernames by prefix | Trie prefix traversal |
+| 3 | Change a user's privacy (PUBLIC/PRIVATE) | Stack push |
+| 4 | Undo the last privacy change | Stack pop |
+| 5 | Send a friend request to another user | Queue enqueue |
+| 6 | Process the oldest pending request | Queue dequeue |
+| 7 | Look up a user's full profile by ID | Hash Map O(1) lookup |
+| 8 | Display top influencers with sort benchmarks | Quick Sort + Merge Sort + STL Sort |
+| 9 | Create a friendship between two users | Graph edge insertion |
+| 10 | Find shared friends between two users | Graph set intersection |
+| 11 | Discover isolated friend groups | DFS connected components |
+| 12 | Find shortest connection between users | BFS shortest path |
+| 13 | "People you may know" suggestions | Greedy mutual-friend maximization |
+| 14 | Exit the application | — |
 
 ---
 
-## 🔄 How the Data Flows
+## 💻 Sample Input / Output
 
 ```
-                    ┌─────────────┐
-                    │  users.csv  │  ← 1,000 users stored here
-                    │  (external) │
-                    └──────┬──────┘
-                           │ reads at startup
-                           ▼
-                   ┌───────────────┐
-                   │  preloadData  │  ← Parses CSV, generates ~3,000 friendships
-                   └───────┬───────┘
-                           │ populates
-            ┌──────────────┼──────────────┐
-            ▼              ▼              ▼
-     ┌────────────┐  ┌───────────┐  ┌───────────┐
-     │ UserManager│  │TrieManager│  │GraphManager│
-     │ (Hash Map) │  │  (Trie)   │  │(Adj. List) │
-     └────────────┘  └───────────┘  └───────────┘
-            │              │              │
-            └──────────────┼──────────────┘
-                           │
-                    ┌──────▼──────┐
-                    │  Dashboard  │  ← The menu you interact with
-                    │  (15 opts)  │
-                    └─────────────┘
-```
+  BUZZLINK SOCIAL PLATFORM DASHBOARD
+----------------------------------------------------------------
+  Select option > 2
 
----
+----------------------------------------------------------------
+  2. Search User by Prefix (Trie)
+----------------------------------------------------------------
+  Prefix: al
+  Found 3 match(es):
+  @alice_j (ID: 101)
+  @alex_m (ID: 205)
+  @alyssa_b (ID: 308)
 
-## 📸 Sample Output
+  Select option > 3
 
-### Influencer Rankings (Option 8)
-```
-  Sorting Performance (Nanoseconds):
-  Quick Sort: 163458 ns  |  Merge Sort: 255833 ns  |  STL Sort: 124875 ns
+----------------------------------------------------------------
+  3. Change Privacy Setting
+----------------------------------------------------------------
+  UserID: 101
+  New Setting (PUBLIC/PRIVATE): PRIVATE
+  Privacy updated.
 
-  Top Influencers Leaderboard:
-  1. @charlie_s39 (Score: 698910)
-  2. @sam_l16 (Score: 698002)
-  3. @olivia_q17 (Score: 697968)
-  ...
-```
+  Select option > 4
 
-### Network Overview (Option 14)
-```
-  Network Overview:
-  Total Users: 1000
-  Total Friendships: 2989
-  Max Friends (Degree): 15
+----------------------------------------------------------------
+  4. Undo Privacy Change (Stack)
+----------------------------------------------------------------
+  UserID: 101
+  Reverted back to: PUBLIC
 
-  Top 10 Nodes by Connections:
-  @tina_h40 (325) -> 15 friends
-  @mia_j99 (172) -> 14 friends
-  ...
-```
+  Select option > 12
 
-### Community Detection (Option 12)
-```
-  Total Communities Detected: 7
-  Displaying Top 3 Largest Communities:
-  Community 1 (994 users): @sam_i6 @ivy_m41 @sam_d33 ...and 984 more
-  Community 2 (1 users): @olivia_f28
-  Community 3 (1 users): @charlie_s3
-```
+----------------------------------------------------------------
+  12. Find Shortest Path Between Users
+----------------------------------------------------------------
+  Source ID: 101
+  Dest ID: 107
+  Viral path found in 3 hops!
+  @alice_j -> @charlie_p -> @eve_o -> @grace_t
 
-### Viral Spread BFS (Option 11)
-```
-  Viral path found in 4 hops!
-  @noah_u83 -> @zack_a65 -> @xander_w53 -> @ivy_m41 -> @sam_i6
+  Select option > 13
+
+----------------------------------------------------------------
+  13. Friend Recommendations
+----------------------------------------------------------------
+  UserID: 101
+  Top Recommendations:
+  @eve_o (105) - Mutual Friends: 2
+  @diana_x (104) - Mutual Friends: 1
+
+  Select option > 14
+  Exiting BuzzLink...
 ```
 
 ---
 
-## 🧪 Complexity Summary
+## 📄 License
 
-| Feature | Data Structure | Time Complexity | Space Complexity |
-|---|---|---|---|
-| Prefix Search | Trie | O(L) | O(N × L) |
-| Privacy Undo | Stack | O(1) | O(H) per user |
-| Request Processing | Queue | O(1) | O(R) |
-| User Lookup | Hash Map | O(1) avg | O(N) |
-| Influencer Ranking | Sorting | O(N log N) | O(N) |
-| Add Friendship | Graph (Adj. List) | O(1) | O(V + E) |
-| Viral Spread | BFS | O(V + E) | O(V) |
-| Community Detection | DFS | O(V + E) | O(V) |
-| Friend Suggestions | Greedy | O(D²) | O(D) |
-
-> **Key:** N = total users, L = prefix length, H = history depth, R = pending requests, V = vertices (users), E = edges (friendships), D = average degree (friends per user)
+This project is licensed under the [MIT License](LICENSE).
 
 ---
 
-*Built with ❤️ by Kv404*
+<p align="center">
+  Built with ❤️ and C++ — Demonstrating that Data Structures & Algorithms power the platforms we use every day.
+</p>
