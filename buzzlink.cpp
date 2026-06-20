@@ -1,14 +1,15 @@
 /*
  * ============================================================================
- *  BuzzLink — Social Network Mutual Friend Hub (C++17)
+ *  BuzzLink — Social Network Mutual Friend Hub
  * ============================================================================
  *  A complete OOP-based backend for a micro-blogging platform.
  *  Implements the 8 must-have features of PS-11:
  *    Trie, Stack, Queue, Hash Map, Graph (BFS/DFS), Sorting (Quick/Merge/STL),
  *    and Greedy Optimization.
  *
- *  Compile:  g++ -std=c++17 -O2 -o buzzlink buzzlink.cpp
+ *  Compile:  g++ -std=c++11 -O2 -Wall -Wextra -o buzzlink buzzlink.cpp
  *  Run:      ./buzzlink
+ *  Version:  1.0.0
  * ============================================================================
  */
 
@@ -16,6 +17,7 @@
 #include <chrono>
 #include <deque>
 #include <fstream>
+#include <iomanip>
 #include <iostream>
 #include <limits>
 #include <queue>
@@ -28,6 +30,8 @@
 #include <vector>
 
 using namespace std;
+
+static const string APP_VERSION = "1.0.0";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // ANSI colour helpers (for terminal UI)
@@ -108,6 +112,10 @@ class TrieManager {
 private:
   TrieNode *root;
 
+  // Prevent accidental copies (raw pointer ownership)
+  TrieManager(const TrieManager &) = delete;
+  TrieManager &operator=(const TrieManager &) = delete;
+
   void collect(TrieNode *node, string &current,
                vector<pair<string, int>> &results) const {
     if (node->isEnd)
@@ -129,6 +137,7 @@ public:
   TrieManager() : root(new TrieNode()) {}
   ~TrieManager() { destroy(root); }
 
+  // Insert username; if duplicate, keep the first occurrence
   void insert(const string &username, int userID) {
     TrieNode *cur = root;
     for (char c : username) {
@@ -136,6 +145,8 @@ public:
         cur->children[c] = new TrieNode();
       cur = cur->children[c];
     }
+    if (cur->isEnd)
+      return; // Duplicate username — keep first
     cur->isEnd = true;
     cur->userID = userID;
   }
@@ -226,11 +237,13 @@ public:
     return true;
   }
 
+  size_t pendingCount() const { return q.size(); }
+
   void viewPending() const {
     cout << "  Pending requests: " << q.size() << "\n";
     if (!q.empty()) {
       cout << "  Next up: User " << q.front().fromID << " -> User "
-           << q.front().toID << "\n";
+           << q.front().toID << " | \"" << q.front().message << "\"\n";
     }
   }
 };
@@ -402,7 +415,9 @@ public:
          << clr::RESET;
 
     sort(allCommunities.begin(), allCommunities.end(),
-         [](auto &a, auto &b) { return a.size() > b.size(); });
+         [](const vector<int> &a, const vector<int> &b) {
+           return a.size() > b.size();
+         });
 
     cout << "  Displaying Top 3 Largest Communities:\n";
     for (size_t i = 0; i < min((size_t)3, allCommunities.size()); i++) {
@@ -567,7 +582,9 @@ public:
     vector<pair<int, int>> candidates(mutualCount.begin(), mutualCount.end());
     // Greedy approach: Pick candidates with highest mutual count
     sort(candidates.begin(), candidates.end(),
-         [](auto &a, auto &b) { return a.second > b.second; });
+         [](const pair<int, int> &a, const pair<int, int> &b) {
+           return a.second > b.second;
+         });
 
     if (candidates.empty()) {
       cout << clr::YELLOW << "  No suggestions available.\n" << clr::RESET;
@@ -598,6 +615,12 @@ private:
   RankingSystem ranking;
   RecommendationEngine recommendations;
 
+  // Helper: strip trailing \r from any string (cross-platform CSV safety)
+  static void stripCR(string &s) {
+    while (!s.empty() && s.back() == '\r')
+      s.pop_back();
+  }
+
   void preloadData() {
     ifstream file("users.csv");
     if (!file.is_open()) {
@@ -611,9 +634,18 @@ private:
       graph.registerUser(101);
     } else {
       string line;
+      int lineNum = 0;
+      int loaded = 0;
       while (getline(file, line)) {
-        if (line.empty() || line[0] == '\r')
+        lineNum++;
+        stripCR(line);
+        if (line.empty())
           continue;
+
+        // Skip CSV header row
+        if (lineNum == 1 && line.find("id,") == 0)
+          continue;
+
         stringstream ss(line);
         string idStr, username, followersStr, engagementStr, privacyStatus;
 
@@ -623,25 +655,35 @@ private:
         getline(ss, engagementStr, ',');
         getline(ss, privacyStatus, ',');
 
-        if (!privacyStatus.empty() && privacyStatus.back() == '\r') {
-          privacyStatus.pop_back();
-        }
+        // Strip \r from all fields uniformly
+        stripCR(idStr);
+        stripCR(username);
+        stripCR(followersStr);
+        stripCR(engagementStr);
+        stripCR(privacyStatus);
 
         try {
           int id = stoi(idStr);
           int followers = stoi(followersStr);
           int engagement = stoi(engagementStr);
 
+          // Validate privacy field
+          if (privacyStatus != "PUBLIC" && privacyStatus != "PRIVATE")
+            privacyStatus = "PUBLIC";
+
           User u(id, username, followers, engagement, privacyStatus);
           users.addUser(u);
           trie.insert(u.username, u.userID);
           privacy.changePrivacy(u.userID, u.privacyStatus);
           graph.registerUser(u.userID);
+          loaded++;
         } catch (...) {
-          // Ignore malformed lines silently
+          // Skip malformed lines (e.g. incomplete rows)
         }
       }
       file.close();
+      cout << clr::GREEN << "  Loaded " << loaded << " users from users.csv\n"
+           << clr::RESET;
     }
 
     // Generate random realistic graph interconnections.
@@ -668,6 +710,10 @@ private:
           ++added;
         }
       }
+      cout << clr::GREEN << "  Generated " << added
+           << " friendships (avg degree ~"
+           << (userIDs.empty() ? 0 : (added * 2 / userIDs.size())) << ")\n"
+           << clr::RESET;
     }
 
     // Add a few explicit requests for demonstration
@@ -678,7 +724,22 @@ private:
   }
 
 public:
-  BuzzLinkApp() { preloadData(); }
+  BuzzLinkApp() {
+    // Startup banner
+    cout << "\n";
+    cout << clr::BOLD << clr::CYAN
+         << "  ╔══════════════════════════════════════════════════════════╗\n"
+         << "  ║           BUZZLINK — Social Network Mutual Friend Hub   ║\n"
+         << "  ║                        v" << APP_VERSION
+         << "                            ║\n"
+         << "  ╚══════════════════════════════════════════════════════════╝\n"
+         << clr::RESET;
+    printSeparator();
+
+    preloadData();
+
+    cout << clr::DIM << "  Ready. Type a menu option to begin.\n" << clr::RESET;
+  }
 
   void run() {
     bool running = true;
@@ -687,13 +748,13 @@ public:
            << clr::BOLD << clr::CYAN << "  BUZZLINK SOCIAL PLATFORM DASHBOARD\n"
            << clr::RESET;
       printSeparator();
-      cout << "  1. Add User                      9. Add Friendship\n"
-           << "  2. Search User by Prefix        10. Find Mutual Friends\n"
-           << "  3. Change Privacy Setting       11. Detect Communities\n"
-           << "  4. Undo Privacy Change          12. Find Shortest Path "
+      cout << "  1. Add User                      9. Find Mutual Friends\n"
+           << "  2. Search User by Prefix        10. Find Shortest Path "
               "Between Users\n"
-           << "  5. Send Friend Request          13. Friend Recommendations\n"
-           << "  6. Process Friend Request       14. View Privacy History\n"
+           << "  3. Change Privacy Setting       11. Friend Recommendations\n"
+           << "  4. Undo Privacy Change          12. View Privacy History\n"
+           << "  5. Send Friend Request          13. View Pending Requests\n"
+           << "  6. Process Friend Request       14. Network Statistics\n"
            << "  7. Find User by ID              15. Exit\n"
            << "  8. Display Influencer Rankings\n";
       printSeparator();
@@ -701,8 +762,16 @@ public:
 
       int ch;
       if (!(cin >> ch)) {
+        if (cin.eof()) {
+          running = false;
+          cout << clr::CYAN << "\n  EOF received. Exiting BuzzLink...\n"
+               << clr::RESET;
+          break;
+        }
         cin.clear();
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        cout << clr::RED << "  Invalid input. Please enter a number.\n"
+             << clr::RESET;
         continue;
       }
 
@@ -713,6 +782,11 @@ public:
         string name;
         cout << "  UserID: ";
         cin >> id;
+        if (users.exists(id)) {
+          cout << clr::RED << "  Error: User ID " << id << " already exists.\n"
+               << clr::RESET;
+          break;
+        }
         cout << "  Username: ";
         cin >> name;
         cout << "  Followers: ";
@@ -724,7 +798,9 @@ public:
         trie.insert(name, id);
         privacy.changePrivacy(id, "PUBLIC");
         graph.registerUser(id);
-        cout << clr::GREEN << "  User added successfully.\n" << clr::RESET;
+        cout << clr::GREEN << "  User @" << name << " (ID: " << id
+             << ") added successfully.\n"
+             << clr::RESET;
         break;
       }
       case 2: {
@@ -754,18 +830,25 @@ public:
         cout << "  UserID: ";
         int id;
         cin >> id;
+        if (!users.exists(id)) {
+          cout << clr::RED << "  User not found.\n" << clr::RESET;
+          break;
+        }
         cout << "  New Setting (PUBLIC/PRIVATE): ";
         string p;
         cin >> p;
-        if (users.exists(id)) {
-          privacy.changePrivacy(id, p);
-          User u;
-          users.findUser(id, u);
-          u.privacyStatus = p;
-          users.updateUser(id, u);
-          cout << clr::GREEN << "  Privacy updated.\n" << clr::RESET;
-        } else
-          cout << clr::RED << "  User not found.\n" << clr::RESET;
+        if (p != "PUBLIC" && p != "PRIVATE") {
+          cout << clr::RED << "  Invalid setting. Must be PUBLIC or PRIVATE.\n"
+               << clr::RESET;
+          break;
+        }
+        privacy.changePrivacy(id, p);
+        User u;
+        users.findUser(id, u);
+        u.privacyStatus = p;
+        users.updateUser(id, u);
+        cout << clr::GREEN << "  Privacy updated to " << p << ".\n"
+             << clr::RESET;
         break;
       }
       case 4: {
@@ -793,6 +876,21 @@ public:
         cin >> from;
         cout << "  To ID: ";
         cin >> to;
+        if (from == to) {
+          cout << clr::RED << "  Cannot send friend request to yourself.\n"
+               << clr::RESET;
+          break;
+        }
+        if (!users.exists(from) || !users.exists(to)) {
+          cout << clr::RED << "  One or both user IDs not found.\n"
+               << clr::RESET;
+          break;
+        }
+        if (graph.areFriends(from, to)) {
+          cout << clr::YELLOW << "  These users are already friends.\n"
+               << clr::RESET;
+          break;
+        }
         cout << "  Message: ";
         cin >> ws;
         getline(cin, msg);
@@ -836,22 +934,7 @@ public:
         break;
       }
       case 9: {
-        printHeader("9. Add Friendship");
-        cout << "  User A: ";
-        int a;
-        cin >> a;
-        cout << "  User B: ";
-        int b;
-        cin >> b;
-        if (users.exists(a) && users.exists(b)) {
-          graph.addFriendship(a, b);
-          cout << clr::GREEN << "  Friendship established.\n" << clr::RESET;
-        } else
-          cout << clr::RED << "  Invalid users.\n" << clr::RESET;
-        break;
-      }
-      case 10: {
-        printHeader("10. Find Mutual Friends");
+        printHeader("9. Find Mutual Friends");
         cout << "  User A: ";
         int a;
         cin >> a;
@@ -870,13 +953,8 @@ public:
         cout << "\n";
         break;
       }
-      case 11: {
-        printHeader("11. Detect Communities");
-        graph.detectCommunities(users);
-        break;
-      }
-      case 12: {
-        printHeader("12. Find Shortest Path Between Users");
+      case 10: {
+        printHeader("10. Find Shortest Path Between Users");
         cout << "  Source ID: ";
         int s;
         cin >> s;
@@ -886,29 +964,47 @@ public:
         graph.findViralSpreadPath(s, d, users);
         break;
       }
-      case 13: {
-        printHeader("13. Friend Recommendations");
+      case 11: {
+        printHeader("11. Friend Recommendations");
         cout << "  UserID: ";
         int id;
         cin >> id;
         recommendations.suggestFriends(id, graph, users);
         break;
       }
-      case 14: {
-        printHeader("14. View Privacy History");
+      case 12: {
+        printHeader("12. View Privacy History");
         cout << "  UserID: ";
         int id;
         cin >> id;
         privacy.viewHistory(id);
         break;
       }
+      case 13: {
+        printHeader("13. View Pending Requests");
+        requests.viewPending();
+        break;
+      }
+      case 14: {
+        printHeader("14. Network Statistics");
+        size_t userCount = users.getAllUsers().size();
+        size_t edges = graph.edgeCount();
+        cout << clr::GREEN << "  Network Overview:\n"
+             << clr::RESET << "  Total Users:       " << userCount << "\n"
+             << "  Total Friendships: " << edges << "\n"
+             << "  Avg Degree:        " << fixed << setprecision(1)
+             << (userCount > 0 ? (double)(edges * 2) / userCount : 0.0) << "\n"
+             << "  Pending Requests:  " << requests.pendingCount() << "\n";
+        break;
+      }
       case 15: {
         running = false;
-        cout << clr::CYAN << "  Exiting BuzzLink...\n" << clr::RESET;
+        cout << clr::CYAN << "  Exiting BuzzLink. Goodbye!\n" << clr::RESET;
         break;
       }
       default:
-        cout << clr::RED << "  Invalid choice.\n" << clr::RESET;
+        cout << clr::RED << "  Invalid choice. Please select 1-15.\n"
+             << clr::RESET;
       }
     }
   }

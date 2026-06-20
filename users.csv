@@ -1,4 +1,4 @@
-id,username,score,age,status
+id,username,followers,engagementScore,status
 1,noah_u83,745620,35,PRIVATE
 2,tina_b30,720924,64,PUBLIC
 3,bob_m53,138390,8,PRIVATE
@@ -999,4 +999,3 @@ id,username,score,age,status
 998,olivia_k38,252277,33,PUBLIC
 999,frank_c38,559795,12,PRIVATE
 1000,sam_i6,257805,40,PUBLIC
-1001
